@@ -1,4 +1,4 @@
-datamining_cpsc531
+Text categorization
 ==================
 
 A data mining program doing text categorization for course cpsc531 - Advance database

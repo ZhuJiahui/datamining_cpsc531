@@ -6,8 +6,10 @@ import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.File;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 import net.sf.jtmt.indexers.matrix.IdfIndexer;
 import net.sf.jtmt.indexers.matrix.LsiIndexer;
@@ -22,6 +24,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
+import cpsc531.tc.utils.DocumentCorpus;
+
 /**
  * Test class for generating term/document matrices using various methods.
  * @author Sujit Pal
@@ -30,23 +34,28 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 public class IndexersTest {
 
   private VectorGenerator vectorGenerator;
-  private Map<String,Reader> documents;
+  //private Map<String,Reader> documents;
+  private DocumentCorpus documents;
   
   @Before
   public void setUp() throws Exception {
     vectorGenerator = new VectorGenerator();
 //    vectorGenerator.setDataSource(new DriverManagerDataSource(
 //      "com.mysql.jdbc.Driver", "jdbc:mysql://localhost:3306/tmdb", "root", "orange"));
-    documents = new LinkedHashMap<String,Reader>();
     
-    File dir_articles = new File("src/test/resources/data/articles");
-    String entries[] = dir_articles.list();
-    for(String entry : entries){
-    	File article = new File(dir_articles,entry);
-    	if(article.isFile()){
-    		documents.put(entry, new StringReader(FileUtils.readFileToString(article)));
-    	}
-    }
+//    documents = new LinkedHashMap<String,Reader>();
+//    File dir_articles = new File("src/test/resources/data/articles");
+//    String entries[] = dir_articles.list();
+//    for(String entry : entries){
+//    	File article = new File(dir_articles,entry);
+//    	if(article.isFile()){
+//    		documents.put(entry, new StringReader(FileUtils.readFileToString(article)));
+//    	}
+//    }
+    
+    documents = new DocumentCorpus("src/test/resources/data/articles");
+    
+    
     
 //    BufferedReader reader = new BufferedReader(
 //      new FileReader("src/test/resources/data/indexing_sample_data.txt"));
@@ -61,41 +70,41 @@ public class IndexersTest {
   
   @Test
   public void testVectorGeneration() throws Exception {
-    vectorGenerator.generateVector(documents);
-    prettyPrintMatrix("Occurences", vectorGenerator.getMatrix(), 
+	  
+    vectorGenerator.generateVector(documents.getDocuments());
+    prettyPrintMatrix("Occurences", vectorGenerator.getMatrix(), vectorGenerator.getDocumentNames(), vectorGenerator.getWords(), new PrintWriter(System.out, true));
+    prettyPrintMap("Category map",documents.getCategoryMap(),new PrintWriter(System.out, true));
+  }
+//  
+  @Test
+  public void testTfIndexer() throws Exception {
+    vectorGenerator.generateVector(documents.getDocuments());
+    TfIndexer indexer = new TfIndexer();
+    RealMatrix tfMatrix = indexer.transform(vectorGenerator.getMatrix());
+    prettyPrintMatrix("Term Frequency", tfMatrix, 
       vectorGenerator.getDocumentNames(), vectorGenerator.getWords(), 
       new PrintWriter(System.out, true));
   }
-//  
-//  @Test
-//  public void testTfIndexer() throws Exception {
-//    vectorGenerator.generateVector(documents);
-//    TfIndexer indexer = new TfIndexer();
-//    RealMatrix tfMatrix = indexer.transform(vectorGenerator.getMatrix());
-//    prettyPrintMatrix("Term Frequency", tfMatrix, 
-//      vectorGenerator.getDocumentNames(), vectorGenerator.getWords(), 
-//      new PrintWriter(System.out, true));
-//  }
-//  
-//  @Test
-//  public void testIdfIndexer() throws Exception {
-//    vectorGenerator.generateVector(documents);
-//    IdfIndexer indexer = new IdfIndexer();
-//    RealMatrix idfMatrix = indexer.transform(vectorGenerator.getMatrix());
-//    prettyPrintMatrix("Inverse Document Frequency", idfMatrix,
-//      vectorGenerator.getDocumentNames(), vectorGenerator.getWords(),
-//      new PrintWriter(System.out, true));
-//  }
-//  
-//  @Test
-//  public void testLsiIndexer() throws Exception {
-//    vectorGenerator.generateVector(documents);
-//    LsiIndexer indexer = new LsiIndexer();
-//    RealMatrix lsiMatrix = indexer.transform(vectorGenerator.getMatrix());
-//    prettyPrintMatrix("Latent Semantic (LSI)", lsiMatrix,
-//      vectorGenerator.getDocumentNames(), vectorGenerator.getWords(),
-//      new PrintWriter(System.out, true));
-//  }
+  
+  @Test
+  public void testIdfIndexer() throws Exception {
+    vectorGenerator.generateVector(documents.getDocuments());
+    IdfIndexer indexer = new IdfIndexer();
+    RealMatrix idfMatrix = indexer.transform(vectorGenerator.getMatrix());
+    prettyPrintMatrix("Inverse Document Frequency", idfMatrix,
+      vectorGenerator.getDocumentNames(), vectorGenerator.getWords(),
+      new PrintWriter(System.out, true));
+  }
+  
+  @Test
+  public void testLsiIndexer() throws Exception {
+    vectorGenerator.generateVector(documents.getDocuments());
+    LsiIndexer indexer = new LsiIndexer();
+    RealMatrix lsiMatrix = indexer.transform(vectorGenerator.getMatrix());
+    prettyPrintMatrix("Latent Semantic (LSI)", lsiMatrix,
+      vectorGenerator.getDocumentNames(), vectorGenerator.getWords(),
+      new PrintWriter(System.out, true));
+  }
   
   private void prettyPrintMatrix(String legend, RealMatrix matrix, 
       String[] documentNames, String[] words, PrintWriter writer) {
@@ -113,5 +122,15 @@ public class IndexersTest {
       writer.println();
     }
     writer.flush();
+  }
+  
+  private void prettyPrintMap(String legend, Map m, PrintWriter writer){
+	  writer.printf("=== %s ===%n", legend);
+	  Set<Map.Entry<String, String>> setView = m.entrySet();
+		for(Iterator<Map.Entry<String,String>> it = setView.iterator(); it.hasNext();){
+			Map.Entry<String, String> me = it.next();
+			writer.printf("Document:%s, Category:%s%n", me.getKey(), me.getValue());
+		}
+	  
   }
 }

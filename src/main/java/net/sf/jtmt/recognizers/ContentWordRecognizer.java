@@ -14,6 +14,8 @@ import edu.mit.jwi.item.POS;
 import edu.mit.jwi.morph.IStemmer;
 import edu.mit.jwi.morph.WordnetStemmer;
 
+import cpsc531.tc.utils.PorterStemmer;
+
 /**
  * Recognizes content words (noun, verb, adjective, and adverb) from a
  * List of Token objects. Only TokenType.WORD tokens are considered in
@@ -27,7 +29,7 @@ public class ContentWordRecognizer implements IRecognizer {
   private IDictionary dictionary;
   private IStemmer stemmer;
   private List<POS> allowablePartsOfSpeech = Arrays.asList(new POS[] {
-    POS.NOUN, POS.VERB});
+    POS.NOUN, POS.VERB, POS.ADJECTIVE, POS.ADVERB});
   
   public void init() throws Exception {
     this.dictionary = new Dictionary(new URL("file", null, "C:\\Program Files (x86)\\WordNet\\2.1\\dict"));
@@ -41,29 +43,53 @@ public class ContentWordRecognizer implements IRecognizer {
 //    if(testWord !=null){
 //    	  System.out.println("none empty");
 //      }
-	   List<String> stemss = stemmer.findStems("2-vectors", POS.NOUN);
-	   if(!stemss.isEmpty()){
-		   for(int i =0; i<stemss.size(); i++){
-			   System.out.println(stemss.get(i));}
-	   }
+// test code 1:
+//	   List<String> stemss = stemmer.findStems("2-vectors", POS.ADJECTIVE);
+//	   if(!stemss.isEmpty()){
+//		   IIndexWord wordtest = dictionary.getIndexWord(stemss.get(0), POS.NOUN);
+//		   if (wordtest== null)
+//		   {
+//			   System.out.println("not null");
+//		   }
+//		   for(int i =0; i<stemss.size(); i++){
+//			   System.out.println(stemss.get(i));}
+//	   }
+//	   else System.out.println("sssss");
+    
     for (Token token : tokens) {
       Token outputToken = new Token(token.getValue(), token.getType());
-      //System.out.printf("word:%s type:%s\n",token.getValue(),token.getType().toString());
-      
+     
       if (token.getType() == TokenType.WORD) {
-        String word = token.getValue();
+    	  //System.out.printf("word:%s type:%s\n",token.getValue(),token.getType().toString());
+          
+          String word = token.getValue();
+       
+//        String stem = Stemmer.stemWord(word);
+//        if(!stem.isEmpty()){
+//        	outputToken.setValue(stem);
+//        	outputToken.setType(TokenType.CONTENT_WORD);
+//        }
+
+//        //System.out.printf("word:%s type:%s\n",outputToken.getValue(),outputToken.getType().toString());
+    	  
         for (POS allowablePartOfSpeech : allowablePartsOfSpeech) {
-    	   List<String> stems = stemmer.findStems(word, allowablePartOfSpeech);
-    	   if(!stems.isEmpty()){
+        	
+        	List<String> stems = null;
+        	try {
+        		stems = stemmer.findStems(word, allowablePartOfSpeech);
+        	} catch (IllegalArgumentException e){
+        		//System.out.printf("illegalArgumentException caught for word '%s'%n",word);
+        		break;
+        	}
+    	   if(stems != null && !stems.isEmpty()){
+    		   IIndexWord indexWord = dictionary.getIndexWord(stems.get(0), allowablePartOfSpeech);
+    		   if(indexWord!=null){
+    			   outputToken.setValue(indexWord.getLemma());
+    		   }else outputToken.setValue(stems.get(0));
     		   outputToken.setType(TokenType.CONTENT_WORD);
     		   break;
+    		   }
     	   }
-//          IIndexWord indexWord = dictionary.getIndexWord(word, allowablePartOfSpeech);
-//          if (indexWord != null) {
-//            outputToken.setType(TokenType.CONTENT_WORD);
-//            break;
-//          }
-        }
       }
       outputTokens.add(outputToken);
     }

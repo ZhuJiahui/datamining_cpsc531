@@ -1,5 +1,9 @@
 package net.sf.jtmt.indexers.matrix;
 
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.TreeMap;
+
 import org.apache.commons.collections15.Transformer;
 import org.apache.commons.math.linear.RealMatrix;
 
@@ -16,22 +20,30 @@ import org.apache.commons.math.linear.RealMatrix;
  * @version $Revision: 44 $
  */
 public class IdfIndexer implements Transformer<RealMatrix,RealMatrix> {
-
+	
+  protected ArrayList<Double> dfRawCounts = new ArrayList<Double>(); //the raw doc frequency of terms
+  
   public RealMatrix transform(RealMatrix matrix) {
     // Phase 1: apply IDF weight to the raw word frequencies
+	calculateRawDF(matrix);
     int n = matrix.getColumnDimension();
     for (int j = 0; j < matrix.getColumnDimension(); j++) {
       for (int i = 0; i < matrix.getRowDimension(); i++) {
         double matrixElement = matrix.getEntry(i, j);
         if (matrixElement > 0.0D) {
-          double dm = countDocsWithWord(
-            matrix.getSubMatrix(i, i, 0, matrix.getColumnDimension() - 1));
-          matrix.setEntry(i, j, matrix.getEntry(i,j) * (1 + Math.log(n) - Math.log(dm)));
+          double dm = dfRawCounts.get(i);
+          //matrix.setEntry(i, j, matrix.getEntry(i,j) * (1 + Math.log(n) - Math.log(dm)));
+          matrix.setEntry(i, j, matrix.getEntry(i,j) * (1 + Math.log(n/dm)));
         }
       }
     }
     // Phase 2: normalize the word scores for a single document
-    for (int j = 0; j < matrix.getColumnDimension(); j++) {
+    normalizeMatrix(matrix);
+    return matrix;
+  }
+
+protected void normalizeMatrix(RealMatrix matrix) {
+	for (int j = 0; j < matrix.getColumnDimension(); j++) {
       double sum = sum(matrix.getSubMatrix(0, matrix.getRowDimension() -1, j, j));
       for (int i = 0; i < matrix.getRowDimension(); i++) {
         if (sum > 0.0D) {
@@ -41,8 +53,11 @@ public class IdfIndexer implements Transformer<RealMatrix,RealMatrix> {
         }
       }
     }
-    return matrix;
-  }
+}
+  
+  public  ArrayList<Double> getDFRawCounts(){
+	  return dfRawCounts;
+  };
 
   private double sum(RealMatrix colMatrix) {
     double sum = 0.0D;
@@ -52,6 +67,13 @@ public class IdfIndexer implements Transformer<RealMatrix,RealMatrix> {
     return sum;
   }
 
+  protected void calculateRawDF(RealMatrix matrix){
+	  for (int i = 0; i < matrix.getRowDimension(); i++) {
+        double dm = countDocsWithWord(
+          matrix.getSubMatrix(i, i, 0, matrix.getColumnDimension() - 1));
+        dfRawCounts.add(dm);
+	  }
+  }
   private double countDocsWithWord(RealMatrix rowMatrix) {
     double numDocs = 0.0D;
     for (int j = 0; j < rowMatrix.getColumnDimension(); j++) {

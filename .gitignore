@@ -1,3 +1,4 @@
 #exclude the lib file#
 /lib
 /taget
+/src/test/resources/data

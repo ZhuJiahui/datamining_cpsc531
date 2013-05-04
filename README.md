@@ -14,15 +14,17 @@ A data mining program doing text categorization for course cpsc531 - Advance dat
   commons-io-1.2.jar => commons-io-2.4.jar
     
   jwi-2.1.3 => edu.mit.jwi_2.2.4.jar
-* Currently the training data set are in src/test/resources/data/articles folders, the structure of this folders should look like this(a 2-tier structure):
-	articles(or whatever you named it)
-	  - (folder)category1
+* Currently the training data set are in src/test/resources/data/articles folders, the structure of this folders should look like this(a 2-tier structure):	
+```ruby
+	- articles(or whatever you named it)
+		- (folder)category1
 			-  text_file1
 			-  text_file2
 			-  text_file3
 				...
-	  - (folder)category2
+		- (folder)category2
 				...
-	  - (folder)category3
+		- (folder)category3
 				...
+```
 * Run the main class TextClassification.java

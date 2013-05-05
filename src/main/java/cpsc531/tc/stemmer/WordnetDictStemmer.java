@@ -1,11 +1,8 @@
 package cpsc531.tc.stemmer;
 
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
-
-import net.sf.jtmt.tokenizers.TokenType;
 
 import edu.mit.jwi.Dictionary;
 import edu.mit.jwi.IDictionary;

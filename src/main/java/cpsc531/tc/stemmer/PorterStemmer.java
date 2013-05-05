@@ -1,4 +1,4 @@
-package cpsc531.tc.utils;
+package cpsc531.tc.stemmer;
 
 /*
 
@@ -36,7 +36,6 @@ package cpsc531.tc.utils;
 
 import java.io.*;
 
-import cpsc531.tc.stemmer.IStemmer;
 
 /**
  * Stemmer, implementing the Porter Stemming Algorithm

@@ -5,16 +5,20 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.File;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.SortedMap;
+import java.util.SortedSet;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.apache.commons.collections15.map.HashedMap;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.DirectoryWalker;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.math.linear.RealMatrix;
 
 /**
  * A simple in-memory document corpus, load all the documents as string into 
@@ -88,6 +92,16 @@ public class DocumentCorpus {
 	    	}
 	    }
 	}
-
 	
+	public ArrayList<String> getCategoreisList(){
+		SortedSet<String> cateNames = new TreeSet<String>();
+		Set<Map.Entry<String, String>> cateSet = docCategoryMap.entrySet();
+		for(Iterator<Map.Entry<String, String>> it = cateSet.iterator(); it.hasNext();){
+			Map.Entry<String, String> entry = it.next();
+			cateNames.add(entry.getValue());
+		}
+		ArrayList<String> list = new ArrayList<String>();
+		list.addAll(cateNames);
+		return list;
+	}
 }

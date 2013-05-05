@@ -11,6 +11,11 @@ import java.util.TreeMap;
 import cpsc531.tc.features.VectorSpaceModel;
 import cpsc531.tc.utils.PrettyPrinter;
 
+/**
+ * KNN Classifier
+ * @author shaofenchen
+ *
+ */
 public class KNNClassifier {
 	
 	private VectorSpaceModel vsm;

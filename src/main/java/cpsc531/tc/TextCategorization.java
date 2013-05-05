@@ -2,7 +2,13 @@ package cpsc531.tc;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
+import org.apache.commons.math.linear.BlockRealMatrix;
+import org.apache.commons.math.linear.OpenMapRealMatrix;
 import org.apache.commons.math.linear.RealMatrix;
 
 import net.sf.jtmt.indexers.matrix.IdfIndexer;
@@ -38,6 +44,7 @@ public class TextCategorization {
 		
 		VectorGenerator trainVG, testVG;
 		DocumentCorpus trainDocuments, testDocuments;
+		VectorSpaceModel vsm;
 		IStemmer stemmer = new WordnetDictStemmer("C:\\Program Files (x86)\\WordNet\\2.1\\dict"); 
 		trainVG = new VectorGenerator();
 		trainDocuments = new DocumentCorpus("src/test/resources/data/articles4");
@@ -93,14 +100,30 @@ public class TextCategorization {
 				 PrintWriter(System.out, true), 1000,1200, 0,20);
 		 
 		 System.out.println("======KNN Classifier======");
-		 VectorSpaceModel vsm = new VectorSpaceModel(trainVG, trainDocuments.getDocCateMap());
+		 vsm = new VectorSpaceModel(trainVG, trainDocuments.getDocCateMap());
 		 KNNClassifier knn = new KNNClassifier(vsm);
 		 int K = 20;
-		 String cate = null;
+		 String predictedCate = null;
+		 ArrayList<String> trainCategories = trainDocuments.getCategoreisList();
+		 ArrayList<String> testCategories = testDocuments.getCategoreisList();
+		 RealMatrix confuseMatrix = new OpenMapRealMatrix(testCategories.size(), trainCategories.size());
+		 
+		 //SortedSet<String> resultCategories = new TreeSet<String>();
 		 for(int i = 0; i < testIdfMatrix.getColumnDimension(); i++){
-			 cate = knn.classify(testIdfMatrix.getColumn(i), K);
-			 System.out.printf("doc:%s, category:%s%n", testVG.getDocumentName(i), cate);
+			 String actualCate = testDocuments.getDocCateMap().get(testVG.getDocumentName(i));//test
+			 predictedCate = knn.classify(testIdfMatrix.getColumn(i), K);//train
+			 
+			 int row = testCategories.indexOf(actualCate);
+			 int col = trainCategories.indexOf(predictedCate);
+			 double temp = confuseMatrix.getEntry(row, col);
+			 confuseMatrix.setEntry(row, col, temp +1);
+			 System.out.printf("doc:%s, category:%s%n", testVG.getDocumentName(i), predictedCate);
 		 }
+		 
+		 PrettyPrinter.prettyPrintMatrix("ConfusionMatrix", confuseMatrix, 
+				 trainCategories.toArray(new String[trainCategories.size()]), 
+				 testCategories.toArray(new String[testCategories.size()]), 
+				 new PrintWriter(System.out, true));
 		
 		System.out.println("======Elasped time======");
 		estimatedTime = System.nanoTime() - startTime;

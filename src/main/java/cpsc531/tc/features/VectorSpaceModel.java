@@ -37,6 +37,9 @@ public class VectorSpaceModel {
 	public String getCategory(String docName){
 		return docCateMap.get(docName);
 	}
+	public String getCategory(int index){
+		return docCateMap.get(VG.getDocumentName(index));
+	}
 	
 }
 

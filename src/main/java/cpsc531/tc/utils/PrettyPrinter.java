@@ -18,7 +18,7 @@ public class PrettyPrinter {
 		}
 		writer.println();
 		for (int i = 0; i < words.length; i++) {
-			writer.printf("%15s", words[i]);
+			writer.printf("%30s", words[i]);
 			for (int j = 0; j < documentNames.length; j++) {
 				writer.printf("%8.4f", matrix.getEntry(i, j));
 			}

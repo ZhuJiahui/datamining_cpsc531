@@ -38,8 +38,9 @@ public class RecognizerChain implements IRecognizer {
    * List and transforms it into another Token List.
    * @param a List of Tokens.
    * @return another List of Tokens.
+ * @throws Exception 
    */
-  public List<Token> recognize(final List<Token> tokens) {
+  public List<Token> recognize(final List<Token> tokens) throws Exception {
     List<Token> recognizedTokens = new LinkedList<Token>();
     recognizedTokens.addAll(tokens);
     for (IRecognizer recognizer : recognizers) {

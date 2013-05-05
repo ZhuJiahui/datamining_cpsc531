@@ -32,6 +32,8 @@ import org.apache.commons.math.linear.OpenMapRealMatrix;
 import org.apache.commons.math.linear.RealMatrix;
 import org.springframework.beans.factory.annotation.Required;
 
+import cpsc531.tc.stemmer.IStemmer;
+
 /**
  * Generate the word occurence vector for a document collection.
  * 
@@ -48,6 +50,7 @@ public class VectorGenerator {
 	private ArrayList<String> documentNameList = new ArrayList<String>();
 	private RealMatrix matrix;
 	private WordTokenizer wordTokenizer;
+	private IStemmer stemmer;
 	private RecognizerChain recognizerChain;
 
 	@Required
@@ -111,7 +114,7 @@ public class VectorGenerator {
 				Arrays.asList(new IRecognizer[] { new BoundaryRecognizer(),
 						// new AbbreviationRecognizer(dataSource),
 						// new PhraseRecognizer(dataSource),
-						new StopwordRecognizer(), new ContentWordRecognizer() }));
+						new StopwordRecognizer(), new ContentWordRecognizer(stemmer) }));
 		recognizerChain.init();
 	}
 	
@@ -151,6 +154,11 @@ public class VectorGenerator {
 			}
 		}
 		return words;
+	}
+	
+	public void setStemmer(IStemmer _stemmer){
+		stemmer = _stemmer;
+		
 	}
 	
 	public ArrayList<String> getWordList(){

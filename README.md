@@ -9,6 +9,8 @@ A data mining program doing text categorization for course cpsc531 - Advance dat
 
 * Install [Wordnet2.1 ~ 3.0](http://wordnet.princeton.edu/wordnet/download/current-version/), depends on your platform.
 
+* Changed the corresponding path of Wordnet dictionary in TextClassification.java
+
 * Updated libraries(the new jar can be found at /newlib for convenience): 
 
   commons-io-1.2.jar => commons-io-2.4.jar

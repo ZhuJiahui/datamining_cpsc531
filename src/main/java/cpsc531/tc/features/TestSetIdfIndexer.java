@@ -11,6 +11,11 @@ import org.apache.commons.math.linear.MatrixIndexException;
 import org.apache.commons.math.linear.OpenMapRealMatrix;
 import org.apache.commons.math.linear.RealMatrix;
 
+/**
+ * Calculate the TF/IDF matrix of test set, which need special processing
+ * @author shaofenchen
+ *
+ */
 public class TestSetIdfIndexer extends IdfIndexer {
 
 	private ArrayList<Double> trainDocFreq;

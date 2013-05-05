@@ -24,6 +24,7 @@ public interface IRecognizer {
    * @return the output List of Tokens. The size of the input and output
    * may not match, since some tokens may be coalesced into a single one
    * or a token may be broken up into multiple tokens.
+ * @throws Exception 
    */
-  public List<Token> recognize(List<Token> tokens);
+  public List<Token> recognize(List<Token> tokens) throws Exception;
 }

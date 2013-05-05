@@ -73,7 +73,7 @@ public class IndexersTest {
 	  
     vectorGenerator.generateVector(documents.getDocuments());
     prettyPrintMatrix("Occurences", vectorGenerator.getMatrix(), vectorGenerator.getDocumentNames(), vectorGenerator.getWords(), new PrintWriter(System.out, true));
-    prettyPrintMap("Category map",documents.getCategoryMap(),new PrintWriter(System.out, true));
+    prettyPrintMap("Category map",documents.getDocCateMap(),new PrintWriter(System.out, true));
   }
 //  
   @Test

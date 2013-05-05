@@ -156,7 +156,15 @@ public class VectorGenerator {
 	public ArrayList<String> getWordList(){
 		return wordList;
 	}
-
+	
+	public String getDocumentName(int index){
+		return documentNameList.get(index);
+	}
+	
+	public String getWord(int index){
+		return wordList.get(index);
+	}
+	
 	private Bag<String> getWordFrequencies(String text) throws Exception {
 		Bag<String> wordBag = new HashBag<String>();
 		// WordTokenizer wordTokenizer = new WordTokenizer();

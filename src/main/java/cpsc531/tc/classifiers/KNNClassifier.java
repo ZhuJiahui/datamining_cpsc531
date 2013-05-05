@@ -1,5 +1,6 @@
 package cpsc531.tc.classifiers;
 
+import java.io.PrintWriter;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -8,6 +9,7 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import cpsc531.tc.features.VectorSpaceModel;
+import cpsc531.tc.utils.PrettyPrinter;
 
 public class KNNClassifier {
 	
@@ -25,9 +27,13 @@ public class KNNClassifier {
 		
 		ByValueComparator bvc = new ByValueComparator(simMap);
 		TreeMap<String,Double> sortedSimMap = new TreeMap<String,Double>(bvc);
-		sortedSimMap.putAll(simMap);
+		sortedSimMap.putAll(simMap);getClass();
 		
-		Map<String,Double> cateSimMap = new TreeMap<String,Double>();//K个最近训练样本所属类目的距离之和
+		PrettyPrinter.prettyPrintPortsOfMap("sortedSimMap", sortedSimMap ,  new PrintWriter(System.out, true),0,20);
+		
+		System.out.println("..............");
+
+		Map<String,Double> cateSimMap = new TreeMap<String,Double>();//
 		double count = 0;
 		double tempSim;
 		
@@ -63,15 +69,20 @@ public class KNNClassifier {
 			throw new RuntimeException("Failed to compute CosineSimilarity. Lengths of 2 vectors did not equal");
 		}
 		for(int i = 0; i < v1.length; i++){
-			mul += v1[i] * v2[i];
-			uAbs = v1[i] *v1[i];
-			vAbs = v2[i] *v2[i]; 
+			if(v1[i]>0 && v2[i]>0){
+				mul += v1[i] * v2[i];
+				uAbs += v1[i] *v1[i];
+				vAbs += v2[i] *v2[i]; 
+			}else{ 
+				if(v1[i]>0)
+					uAbs += v1[i] *v1[i];
+				if(v2[i]>0)
+					vAbs += v2[i] *v2[i]; }
 		}
 		uAbs = Math.sqrt(uAbs);
 		vAbs = Math.sqrt(vAbs);
 		return mul / (uAbs * vAbs);
 	}
-	
 	
 	
 	static class ByValueComparator implements Comparator<Object> {

@@ -42,7 +42,7 @@ public class DocumentCorpus {
 	    for(String entry : entries){
 	    	File article = new File(dir_articles,entry);
 	    	if(article.isDirectory()){
-	    		recursiveLoad(article, article.getName());
+	    		recursiveLoad(article, article.getName() );
 	    	}
 	    	if(article.isFile()){
 	    		documents.put(entry, new StringReader(FileUtils.readFileToString(article)));
@@ -54,7 +54,7 @@ public class DocumentCorpus {
 		return documents;
 	}
 	
-	public Map<String, String> getCategoryMap(){
+	public Map<String, String> getDocCateMap(){
 		return docCategoryMap;
 	}
 	
@@ -82,8 +82,9 @@ public class DocumentCorpus {
 	    		recursiveLoad(article, category);
 	    	}
 	    	if(article.isFile()){
-	    		docCategoryMap.put(article.getName(), category);
-	    		documents.put(entry, new StringReader(FileUtils.readFileToString(article)));
+	    		String docName = entry +"_" + category;
+	    		docCategoryMap.put(docName, category);
+	    		documents.put(docName, new StringReader(FileUtils.readFileToString(article)));
 	    	}
 	    }
 	}

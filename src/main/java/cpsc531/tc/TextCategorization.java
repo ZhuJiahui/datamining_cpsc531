@@ -70,17 +70,19 @@ public class TextCategorization {
 		stopTime = System.nanoTime();
 		VectorGenerator testVG = new VectorGenerator();
 		DocumentCorpus testDC = new DocumentCorpus("src/test/resources/data/test");
-
+		
 
 		
 		testVG.generateVector(testDC.getDocuments());
 		//documents = null;
-	    IdfIndexer testIndexer = new TestSetIdfIndexer(testVG.getWordList(),vectorGenerator.getWordList(),indexer.getDFRawCounts(),vectorGenerator.getDocumentNames().length);
-	    RealMatrix testIdfMatrix = testIndexer.transform(testVG.getMatrix());
+		TestSetIdfIndexer testIndexer = new TestSetIdfIndexer(testVG.getWordList(),vectorGenerator.getWordList(),indexer.getDFRawCounts(),vectorGenerator.getDocumentNames().length);
 	    
+		testIndexer.transform(testVG.getMatrix());
+		RealMatrix testIdfMatrix = testIndexer.getTransformedMatrix();
+
 		 prettyPrintPartsOfMatrix("test doc idf", testIdfMatrix,
-		 testVG.getDocumentNames(), testVG.getWords(), new
-		 PrintWriter(System.out, true), 1000,1200, 0,20);
+				 testVG.getDocumentNames(), vectorGenerator.getWords(), new
+				 PrintWriter(System.out, true), 1000,1200, 0,20);
 	    
 
 		

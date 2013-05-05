@@ -133,6 +133,9 @@ public class VectorGenerator {
 //		}
 //		return documentNames;
 	}
+	public ArrayList<String> getDocumentNameList(){
+		return documentNameList;
+	}
 
 	public String[] getWords() {
 		String[] words = new String[wordList.size()];

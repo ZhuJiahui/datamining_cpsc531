@@ -46,7 +46,7 @@ public class VectorGenerator {
 
 	//private Map<Integer, String> wordIdValueMap = new TreeMap<Integer, String>();
 	//private Map<Integer, String> documentIdNameMap = new TreeMap<Integer, String>();
-	private ArrayList<String> wordList = new ArrayList<String>();
+private ArrayList<String> wordList = new ArrayList<String>();
 	private ArrayList<String> documentNameList = new ArrayList<String>();
 	private RealMatrix matrix;
 	private WordTokenizer wordTokenizer;
@@ -83,10 +83,10 @@ public class VectorGenerator {
 		}
 		// we need a documents.keySet().size() x wordSet.size() matrix to hold
 		// this info
-		System.out.println("********generate fre********");
-		estimatedTime = System.nanoTime() - startTime;
-		startTime = System.nanoTime();
-		System.out.println(estimatedTime);
+//		System.out.println("********generate fre********");
+//		estimatedTime = System.nanoTime() - startTime;
+//		startTime = System.nanoTime();
+//		System.out.println(estimatedTime);
 
 		int numDocs = documents.keySet().size();
 		int numWords = wordSet.size();
@@ -103,9 +103,9 @@ public class VectorGenerator {
 		}
 		releaseRecognizers();
 		
-		System.out.println("********generate matrix********");
-		estimatedTime = System.nanoTime() - startTime;
-		System.out.println(estimatedTime);
+//		System.out.println("********generate matrix********");
+//		estimatedTime = System.nanoTime() - startTime;
+//		System.out.println(estimatedTime);
 	}
 
 	private void initRecognizers() throws Exception {

@@ -19,7 +19,7 @@ import org.apache.commons.math.linear.RealMatrix;
 public class TestSetIdfIndexer extends IdfIndexer {
 
 	private ArrayList<Double> trainDocFreq;
-	private int trainSize; // number of training documents
+	private int trainDocNum; // number of training documents
 	private int trainWordsetSize; //number of wordset in training data
 	private ArrayList<Integer> testTrainWordMap;
 	private RealMatrix transMatrix; //a matrix with the same number of rows(words) as the training matrix
@@ -28,7 +28,7 @@ public class TestSetIdfIndexer extends IdfIndexer {
 			ArrayList<String> _trainWordList, ArrayList<Double> docFreq,
 			int docNum) {
 		trainDocFreq = docFreq;
-		trainSize = docNum;
+		trainDocNum = docNum;
 		trainWordsetSize = _trainWordList.size();
 		testTrainWordMap = new ArrayList<Integer>(_testWordList.size());
 		
@@ -44,7 +44,7 @@ public class TestSetIdfIndexer extends IdfIndexer {
 	@Override
 	public RealMatrix transform(RealMatrix matrix) {
 		calculateRawDF(matrix);
-		double n = trainSize + matrix.getColumnDimension();
+		double n = trainDocNum + matrix.getColumnDimension();
 		double dm;
 		for (int j = 0; j < matrix.getColumnDimension(); j++) {
 			for (int i = 0; i < matrix.getRowDimension(); i++) {
@@ -71,21 +71,14 @@ public class TestSetIdfIndexer extends IdfIndexer {
 				for (int j = 0; j < transMatrix.getColumnDimension(); j++) {
 					double matrixElement = matrix.getEntry(testWordIdx, j);
 					if (matrixElement > 0.0D) {
-						try{
 						transMatrix.setEntry(i, j, matrixElement);
-						}
-						catch(MatrixIndexException e){
-							System.out.println("..............");
-							System.out.printf("row:%d, col:%d%n",testWordIdx,j);
-							throw(e);
-						}
 					}
 				}
 			}
 		}
 		normalizeMatrix(transMatrix);
-		normalizeMatrix(matrix);		
-		return matrix;
+		//normalizeMatrix(matrix);		
+		return transMatrix;
 	}
 	
 	public RealMatrix getTransformedMatrix(){

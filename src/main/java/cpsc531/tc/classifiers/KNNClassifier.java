@@ -16,14 +16,16 @@ import cpsc531.tc.utils.PrettyPrinter;
  * @author shaofenchen
  *
  */
-public class KNNClassifier {
-	
-	private VectorSpaceModel vsm;
-	public KNNClassifier(VectorSpaceModel _vsm){
-		vsm = _vsm;
+public class KNNClassifier extends TextClassifier{
+
+	private int K; //KNN's K
+	public KNNClassifier(VectorSpaceModel _vsm, int k){
+		super(_vsm);
+		K = k;
 	}
 	
-	public String classify(double[] vector, int K) throws Exception{
+	@Override
+	public String classify(double[] vector) throws Exception{
 		HashMap<String,Double> simMap = new HashMap<String,Double>();//<DocName, Similarity> map
 		for(int i = 0; i < vsm.getColumnDimension(); i++){
 			double sim = cosineSimilarity(vector, vsm.getFeatureVector(i));
@@ -34,9 +36,8 @@ public class KNNClassifier {
 		TreeMap<String,Double> sortedSimMap = new TreeMap<String,Double>(bvc);
 		sortedSimMap.putAll(simMap);getClass();
 		
-		PrettyPrinter.prettyPrintPortsOfMap("sortedSimMap", sortedSimMap ,  new PrintWriter(System.out, true),0,20);
-		
-		System.out.println("..............");
+		//PrettyPrinter.prettyPrintPortsOfMap("sortedSimMap", sortedSimMap ,  new PrintWriter(System.out, true),0,20);
+		//System.out.println("..............");
 
 		Map<String,Double> cateSimMap = new TreeMap<String,Double>();//
 		double count = 0;

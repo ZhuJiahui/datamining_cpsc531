@@ -50,7 +50,7 @@ public class TextCategorization {
 		double startPercent = 0,endPercent = 0.1;
 		//runTest(trainTestFilesRootDir, wordNetDictPath, 0,0);
 		
-		for(int i = 3; i < 10; i++){
+		for(int i = 5; i < 10; i++){
 			runTest(trainTestFilesRootDir, wordNetDictPath, startPercent, endPercent * (double)i);
 		}
 

@@ -1,15 +1,15 @@
 package cpsc531.tc.classifiers;
 
-import java.io.PrintWriter;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
+
+import org.apache.commons.math.linear.OpenMapRealVector;
 
 import cpsc531.tc.features.VectorSpaceModel;
-import cpsc531.tc.utils.PrettyPrinter;
 
 /**
  * KNN Classifier
@@ -32,28 +32,43 @@ public class KNNClassifier extends TextClassifier{
 			simMap.put(vsm.getDocName(i), sim);
 		}
 		
-		ByValueComparator bvc = new ByValueComparator(simMap);
-		TreeMap<String,Double> sortedSimMap = new TreeMap<String,Double>(bvc);
-		sortedSimMap.putAll(simMap);getClass();
+		//ByValueComparator bvc = new ByValueComparator(simMap);
+		//TreeMap<String,Double> sortedSimMap = new TreeMap<String,Double>(bvc);
+		//sortedSimMap.putAll(simMap);
 		
 		//PrettyPrinter.prettyPrintPortsOfMap("sortedSimMap", sortedSimMap ,  new PrintWriter(System.out, true),0,20);
 		//System.out.println("..............");
 
-		Map<String,Double> cateSimMap = new TreeMap<String,Double>();//
-		double count = 0;
+		Map<String,Double> cateSimMap = new HashMap<String,Double>();//
+		//double count = 0;
 		double tempSim;
 		
-		Set<Map.Entry<String, Double>> simMapSet = sortedSimMap.entrySet();
-		for(Iterator<Map.Entry<String, Double>> it = simMapSet.iterator(); it.hasNext();){
-			Map.Entry<String, Double> entry = it.next();
-			count++;
-			String categoryName = vsm.getCategory(entry.getKey());
+		Set<Map.Entry<String, Double>> simMapSet = simMap.entrySet();
+		Set<String> maxSimsDoc = new HashSet<String>();
+		for(int i = 0; i < K; i++){
+			Map.Entry<String, Double> max = null;
+			boolean initFlag = true;
+			for(Iterator<Map.Entry<String, Double>> it = simMapSet.iterator(); it.hasNext();){
+				Map.Entry<String, Double> entry = it.next();
+				if(maxSimsDoc.contains(entry.getKey()))continue;
+				if(initFlag){
+					max = entry;
+					initFlag = false;
+					continue;
+				}else if(max.getValue() < entry.getValue()){
+					max = entry;
+				}
+			}
+			maxSimsDoc.add(max.getKey());
+
+				//count++;
+			String categoryName = vsm.getCategory(max.getKey());
 			if(cateSimMap.containsKey(categoryName)){
 				tempSim = cateSimMap.get(categoryName);
-				cateSimMap.put(categoryName, tempSim + entry.getValue());
+				cateSimMap.put(categoryName, tempSim + max.getValue());
 			}
-			else cateSimMap.put(categoryName, entry.getValue());
-			if (count > K) break;
+			else cateSimMap.put(categoryName, max.getValue());
+			//if (count > K) break;
 		}
 		
 		double maxSim = 0;
@@ -69,6 +84,14 @@ public class KNNClassifier extends TextClassifier{
 		return bestCate;
 	}
 	
+	private double cosineSimilarity(OpenMapRealVector v1, OpenMapRealVector v2){
+		double mul = 0, uAbs = 0, vAbs = 0;
+		mul = v1.dotProduct(v2);
+		uAbs = v1.getNorm();
+		vAbs = v2.getNorm();
+		return mul/(uAbs * vAbs);
+		
+	}
 	private double cosineSimilarity(double[] v1,double[] v2) throws Exception{
 		double mul = 0, uAbs = 0, vAbs = 0;
 		if(v1.length != v2.length){

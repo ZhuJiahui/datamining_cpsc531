@@ -45,12 +45,12 @@ public class TextCategorization {
 	public static void main(String[] args) throws Exception {
 
 		String trainTestFilesRootDir = "src/test/resources/data/articles2";
+		
 		String wordNetDictPath = "C:\\Program Files (x86)\\WordNet\\2.1\\dict";
 		double startPercent = 0,endPercent = 0.1;
+		//runTest(trainTestFilesRootDir, wordNetDictPath, 0,0);
 		
-		
-		for(int i = 1; i < 10; i++){
-			start();
+		for(int i = 3; i < 10; i++){
 			runTest(trainTestFilesRootDir, wordNetDictPath, startPercent, endPercent * (double)i);
 		}
 
@@ -59,6 +59,8 @@ public class TextCategorization {
 	private static void runTest(String trainTestFilesRootDir,
 			String wordNetDictPath, double startPercent, double endPercent)
 			throws Exception, IOException {
+		
+		start();
 		DocumentCorpus trainDocuments, testDocuments;
 		IStemmer stemmer = new WordnetDictStemmer(wordNetDictPath);
 		
@@ -68,7 +70,9 @@ public class TextCategorization {
 		trainVG.setStemmer(stemmer);
 		testVG.setStemmer(stemmer);
 		trainDocuments = new DocumentCorpus(trainTestFilesRootDir, startPercent, endPercent);
-		testDocuments = new DocumentCorpus(trainTestFilesRootDir, endPercent, endPercent+ 0.1D);
+		testDocuments = new DocumentCorpus(trainTestFilesRootDir, endPercent, endPercent+ 0.04D);
+//		trainDocuments = new DocumentCorpus("src/test/resources/data/articles4");
+//		testDocuments = new DocumentCorpus("src/test/resources/data/test2");
 		
 		benchMark("Load document");
 

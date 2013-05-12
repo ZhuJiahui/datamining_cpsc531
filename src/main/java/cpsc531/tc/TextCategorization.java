@@ -54,9 +54,6 @@ public class TextCategorization {
 
 		runBatchTest(trainTestFilesRootDir);
 		//runOnce(testFilesRootDir, trainFilesRootDir);
-		
-		int K;
-
 	}
 	
 	private static void runBatchTest(String trainTestFilesRootDir) throws IOException, Exception{

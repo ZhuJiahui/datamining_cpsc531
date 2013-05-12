@@ -35,7 +35,7 @@ public class IdfIndexer implements Transformer<RealMatrix, RealMatrix> {
 					// matrix.setEntry(i, j, matrix.getEntry(i,j) * (1 +
 					// Math.log(n) - Math.log(dm)));
 					resultMatrix.setEntry(i, j,
-							matrix.getEntry(i, j) * (1 + Math.log(n / dm)));
+							matrix.getEntry(i, j) * (Math.log(n / (dm + 1))));
 				}
 			}
 		}

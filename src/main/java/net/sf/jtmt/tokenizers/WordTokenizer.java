@@ -5,8 +5,8 @@ import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+//import org.apache.commons.logging.Log;
+//import org.apache.commons.logging.LogFactory;
 
 import com.ibm.icu.text.BreakIterator;
 import com.ibm.icu.text.RuleBasedBreakIterator;
@@ -19,7 +19,7 @@ import com.ibm.icu.text.RuleBasedBreakIterator;
  */
 public class WordTokenizer {
   
-  private final Log log = LogFactory.getLog(getClass());
+  //private final Log log = LogFactory.getLog(getClass());
 
   @SuppressWarnings("unchecked")
   private final static Map<Integer,TokenType> RULE_ENTITY_MAP = 

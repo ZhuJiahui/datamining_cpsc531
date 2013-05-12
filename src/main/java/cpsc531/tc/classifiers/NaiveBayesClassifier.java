@@ -9,6 +9,8 @@ import java.util.Set;
 
 import org.apache.commons.math.linear.OpenMapRealMatrix;
 import org.apache.commons.math.linear.OpenMapRealVector;
+import org.apache.commons.math.linear.RealVector;
+
 import cpsc531.tc.features.VectorSpaceModel;
 
 public class NaiveBayesClassifier extends TextClassifier {
@@ -23,6 +25,7 @@ public class NaiveBayesClassifier extends TextClassifier {
 		init();
 	}
 	
+	@SuppressWarnings("deprecation")
 	private void init(){
 		Map<String, int[]> cateDocListMap = vsm.getCateDocListMap();
 		Set<Map.Entry<String, int[]>> cateDocListSet = cateDocListMap.entrySet();
@@ -36,10 +39,10 @@ public class NaiveBayesClassifier extends TextClassifier {
 		for(Iterator<Map.Entry<String, int[]>> it = cateDocListSet.iterator(); it.hasNext();){
 			Map.Entry<String, int[]> entry = it.next();
 			int[] docIndexList = entry.getValue();
-			OpenMapRealVector wordsFreCountsInCate = new OpenMapRealVector(vsm.getRowDimension());//Zeros vector
+			RealVector wordsFreCountsInCate = new OpenMapRealVector(vsm.getRowDimension());//Zeros vector
 			for(int i = 0; i < docIndexList.length; i++){
 				wordsFreCountsInCate = 
-						wordsFreCountsInCate.add(vsm.getMatrix().getColumnVector(docIndexList[i]));
+						wordsFreCountsInCate.add(new OpenMapRealVector(vsm.getMatrix().getColumnVector(docIndexList[i])));
 				
 			}
 			cateWordFreMatrix.setColumnVector(count, wordsFreCountsInCate);

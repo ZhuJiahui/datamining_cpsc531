@@ -7,30 +7,88 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.math.linear.OpenMapRealMatrix;
 import org.apache.commons.math.linear.OpenMapRealVector;
 
 import cpsc531.tc.features.VectorSpaceModel;
+import cpsc531.tc.utils.SparseVector;
 
 /**
  * KNN Classifier
  * @author shaofenchen
  *
  */
+
 public class KNNClassifier extends TextClassifier{
+	private long startTime;
+	private long elaspedTime;
+	private long stopTime;
 
 	private int K; //KNN's K
+	private double[] sumAbs;
+	
 	public KNNClassifier(VectorSpaceModel _vsm, int k){
 		super(_vsm);
+		startTime = System.nanoTime();
 		K = k;
+		int rows = vsm.getRowDimension();
+		int cols = vsm.getColumnDimension();
+		sumAbs = new double[cols];
+		for(int i =0; i < cols; i++){
+			sumAbs[i] = 0D;
+			for(int j = 0; j < rows; j++){
+				double temp = vsm.getMatrix().getEntry(j, i);
+				if(temp > 0)
+					sumAbs[i] += (temp*temp);
+				
+			}
+			//System.out.printf("Dominator_init:%d:%f%n",i, sumAbs[i]);
+			sumAbs[i] = Math.sqrt(sumAbs[i]);
+		}
+	}
+	
+	private void benchMark(String legend) {
+		System.out.printf("======%s======%n", legend);
+		System.out.println("******Elasped time******");
+		elaspedTime = System.nanoTime() - stopTime;
+		stopTime = System.nanoTime();
+		System.out.printf("%8.4fs%n",(double)elaspedTime/1000000000D);
+		
+		System.out.println("======Total Elasped time======");
+		elaspedTime = System.nanoTime() - startTime;
+		System.out.printf("%8.4fs%n",(double)elaspedTime/1000000000D);
 	}
 	
 	@Override
 	public String classify(double[] vector) throws Exception{
 		HashMap<String,Double> simMap = new HashMap<String,Double>();//<DocName, Similarity> map
-		for(int i = 0; i < vsm.getColumnDimension(); i++){
-			double sim = cosineSimilarity(vector, vsm.getFeatureVector(i));
-			simMap.put(vsm.getDocName(i), sim);
+		double norm = 0D;
+		for(int i = 0; i < vector.length; i++){
+			if(vector[i]>0){
+				norm += (vector[i] *vector[i]);
+			}
 		}
+		norm = Math.sqrt(norm);
+		//benchMark("compute denominator");
+		OpenMapRealMatrix testDocMatrix = new OpenMapRealMatrix(1, vector.length);
+		for(int i = 0; i < vector.length; i++){
+			if(vector[i]>0)
+				testDocMatrix.setEntry(0, i, vector[i]);
+		}
+		OpenMapRealMatrix simMatrix = (OpenMapRealMatrix) testDocMatrix.multiply(vsm.getMatrix());
+
+		for(int i = 0; i < vsm.getColumnDimension(); i++){
+			double denominator = norm*sumAbs[i];
+			double similarity = simMatrix.getEntry(0, i)/denominator;
+			simMap.put(vsm.getDocName(i), similarity);
+			//double sim = cosineSimilarity(vector, vsm.getFeatureVector(i), denominator);
+			//System.out.printf("Sim1==:%f%n", similarity);
+			//System.out.printf("Sim2==:%f%n", sim);
+			//double sim = cosineSimilarity(vector, vsm.getFeatureVector(i));
+			
+		}
+		
+		//benchMark("Similarities");
 		
 		//ByValueComparator bvc = new ByValueComparator(simMap);
 		//TreeMap<String,Double> sortedSimMap = new TreeMap<String,Double>(bvc);
@@ -81,6 +139,7 @@ public class KNNClassifier extends TextClassifier{
 				maxSim = me.getValue();
 			}
 		}
+		//benchMark("Max similarity and best cate");
 		return bestCate;
 	}
 	
@@ -106,13 +165,29 @@ public class KNNClassifier extends TextClassifier{
 				if(v1[i]>0)
 					uAbs += v1[i] *v1[i];
 				if(v2[i]>0)
-					vAbs += v2[i] *v2[i]; }
+					vAbs += v2[i] *v2[i]; 
+				}
 		}
-		uAbs = Math.sqrt(uAbs);
-		vAbs = Math.sqrt(vAbs);
-		return mul / (uAbs * vAbs);
+//		System.out.printf("Dominator_pre:%f%n", uAbs);
+//		System.out.printf("Dominator_pos:%f%n", vAbs);
+		uAbs = Math.sqrt(uAbs*vAbs);
+		//vAbs = Math.sqrt(vAbs);
+		return mul / uAbs;
 	}
 	
+	private double cosineSimilarity(double[] v1,double[] v2, double denominator) throws Exception{
+		double mul = 0;
+		if(v1.length != v2.length){
+			throw new RuntimeException("Failed to compute CosineSimilarity. Lengths of 2 vectors did not equal");
+		}
+		for(int i = 0; i < v1.length; i++){
+			//if(v1[i]>0 && v2[i]>0){
+				mul += v1[i] * v2[i];
+			//}
+		}
+		System.out.printf("Multi==:%f%n", mul);
+		return mul / denominator;
+	}
 	
 	static class ByValueComparator implements Comparator<Object> {
 		HashMap<String, Double> base_map;

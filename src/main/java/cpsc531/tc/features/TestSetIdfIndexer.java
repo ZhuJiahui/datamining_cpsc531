@@ -7,7 +7,6 @@ import net.sf.jtmt.indexers.matrix.VectorGenerator;
 
 import org.apache.commons.collections15.Bag;
 import org.apache.commons.collections15.Transformer;
-import org.apache.commons.math.linear.MatrixIndexException;
 import org.apache.commons.math.linear.OpenMapRealMatrix;
 import org.apache.commons.math.linear.RealMatrix;
 
@@ -32,7 +31,7 @@ public class TestSetIdfIndexer extends IdfIndexer {
 		trainWordsetSize = _trainWordList.size();
 		testTrainWordMap = new ArrayList<Integer>(_testWordList.size());
 		
-		System.out.println("......_trainWordList........");
+		System.out.println("......_trainWordList........%n");
 		System.out.printf("size:%d,",_trainWordList.size());
 		
 		for (int i = 0; i < _testWordList.size(); i++) {
@@ -42,6 +41,26 @@ public class TestSetIdfIndexer extends IdfIndexer {
 	}
 
 	@Override
+//	public RealMatrix transform(RealMatrix matrix) {
+//		transMatrix = new OpenMapRealMatrix(trainWordsetSize, matrix.getColumnDimension());
+//		System.out.println(".......size of transMatrix.......");
+//		System.out.printf("row:%d, col:%d%n",transMatrix.getRowDimension(),transMatrix.getColumnDimension());
+//		
+//		for (int i = 0; i < transMatrix.getRowDimension(); i++) {
+//			int testWordIdx = testTrainWordMap.indexOf(i);
+//			if(testWordIdx!=-1){
+//				for (int j = 0; j < transMatrix.getColumnDimension(); j++) {
+//					double matrixElement = matrix.getEntry(testWordIdx, j);
+//					if (matrixElement > 0.0D) {
+//						transMatrix.setEntry(i, j, matrixElement);
+//					}
+//				}
+//			}
+//		}
+//		normalizeMatrix(transMatrix);
+//		//normalizeMatrix(matrix);		
+//		return transMatrix;
+//	}
 	public RealMatrix transform(RealMatrix matrix) {
 		calculateRawDF(matrix);
 		double n = trainDocNum + matrix.getColumnDimension();
@@ -56,7 +75,7 @@ public class TestSetIdfIndexer extends IdfIndexer {
 					} else
 						dm = dfRawCounts.get(i);
 					matrix.setEntry(i, j,
-							matrix.getEntry(i, j) * (1 + Math.log(n / dm)));
+							matrix.getEntry(i, j) * (Math.log(n / (dm + 1))));
 				}
 			}
 		}

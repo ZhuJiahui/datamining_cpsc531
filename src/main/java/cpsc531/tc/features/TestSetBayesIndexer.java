@@ -3,7 +3,6 @@ package cpsc531.tc.features;
 import java.util.ArrayList;
 
 import org.apache.commons.collections15.Transformer;
-import org.apache.commons.math.linear.MatrixIndexException;
 import org.apache.commons.math.linear.OpenMapRealMatrix;
 import org.apache.commons.math.linear.RealMatrix;
 
@@ -34,14 +33,7 @@ public class TestSetBayesIndexer implements Transformer<RealMatrix, RealMatrix> 
 				for (int j = 0; j < transMatrix.getColumnDimension(); j++) {
 					double matrixElement = matrix.getEntry(testWordIdx, j);
 					if (matrixElement > 0.0D) {
-						try{
 						transMatrix.setEntry(i, j, matrixElement);
-						}
-						catch(MatrixIndexException e){
-							System.out.println("..............");
-							System.out.printf("row:%d, col:%d%n",testWordIdx,j);
-							throw(e);
-						}
 					}
 				}
 			}

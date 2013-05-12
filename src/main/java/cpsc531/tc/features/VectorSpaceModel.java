@@ -56,7 +56,7 @@ public class VectorSpaceModel {
 		return cateDocListMap;
 	}
 	public RealMatrix getMatrix(){
-		return VG.getMatrix();
+		return matrix;
 	}
 	public ArrayList<String> getCategoreisList(){
 		SortedSet<String> cateNames = new TreeSet<String>();

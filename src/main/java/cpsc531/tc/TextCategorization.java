@@ -8,7 +8,6 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.apache.commons.math.linear.BlockRealMatrix;
-import org.apache.commons.math.linear.MatrixIndexException;
 import org.apache.commons.math.linear.OpenMapRealMatrix;
 import org.apache.commons.math.linear.RealMatrix;
 
@@ -22,6 +21,7 @@ import cpsc531.tc.features.TestSetBayesIndexer;
 import cpsc531.tc.features.TestSetIdfIndexer;
 import cpsc531.tc.features.VectorSpaceModel;
 import cpsc531.tc.stemmer.IStemmer;
+import cpsc531.tc.stemmer.PorterStemmer;
 import cpsc531.tc.stemmer.WordnetDictStemmer;
 import cpsc531.tc.utils.DocumentCorpus;
 import cpsc531.tc.utils.PrettyPrinter;
@@ -37,6 +37,9 @@ public class TextCategorization {
 	static long startTime;
 	static long estimatedTime;
 	static long stopTime;
+	static DocumentCorpus trainDocuments;
+	static DocumentCorpus testDocuments;
+	static IStemmer stemmer;
 
 	/**
 	 * @param args
@@ -44,35 +47,46 @@ public class TextCategorization {
 	 */
 	public static void main(String[] args) throws Exception {
 
-		String trainTestFilesRootDir = "src/test/resources/data/articles2";
+		String trainTestFilesRootDir = "C:/Users/shaofenchen/workspace2/data/articles2";
+		String testFilesRootDir = "C:/Users/shaofenchen/workspace2/data/articles4";
+		String trainFilesRootDir = "C:/Users/shaofenchen/workspace2/data/test2"; 
+		stemmer = new WordnetDictStemmer("C:\\Program Files (x86)\\WordNet\\2.1\\dict");
+
+		runBatchTest(trainTestFilesRootDir);
+		//runOnce(testFilesRootDir, trainFilesRootDir);
 		
-		String wordNetDictPath = "C:\\Program Files (x86)\\WordNet\\2.1\\dict";
-		double startPercent = 0,endPercent = 0.1;
-		//runTest(trainTestFilesRootDir, wordNetDictPath, 0,0);
-		
-		for(int i = 3; i < 10; i++){
-			runTest(trainTestFilesRootDir, wordNetDictPath, startPercent, endPercent * (double)i);
-		}
+		int K;
 
 	}
+	
+	private static void runBatchTest(String trainTestFilesRootDir) throws IOException, Exception{
+		double startPercent = 0, endPercent = 0;
+		for(int i = 1; i < 10; i++){
+			start();
+			endPercent = 0.1D * (double)i;
+			trainDocuments = new DocumentCorpus(trainTestFilesRootDir, startPercent, endPercent);
+			testDocuments = new DocumentCorpus(trainTestFilesRootDir, endPercent, endPercent+ 0.1D);
+			runTest();
+		}
+		
+	}
+	
+	private static void runOnce(String trainFilesRootDir, String testFilesRootDir) throws Exception{
+		start();
+		trainDocuments = new DocumentCorpus(trainFilesRootDir);
+		testDocuments = new DocumentCorpus(testFilesRootDir);
+		runTest();
+	}
+	
 
-	private static void runTest(String trainTestFilesRootDir,
-			String wordNetDictPath, double startPercent, double endPercent)
+	private static void runTest()
 			throws Exception, IOException {
 		
-		start();
-		DocumentCorpus trainDocuments, testDocuments;
-		IStemmer stemmer = new WordnetDictStemmer(wordNetDictPath);
-		
-		VectorGenerator trainVG, testVG;
-		trainVG = new VectorGenerator();
-		testVG = new VectorGenerator();
+		VectorGenerator trainVG = new VectorGenerator();
+		VectorGenerator testVG = new VectorGenerator();
+	
 		trainVG.setStemmer(stemmer);
 		testVG.setStemmer(stemmer);
-		trainDocuments = new DocumentCorpus(trainTestFilesRootDir, startPercent, endPercent);
-		testDocuments = new DocumentCorpus(trainTestFilesRootDir, endPercent, endPercent+ 0.04D);
-//		trainDocuments = new DocumentCorpus("src/test/resources/data/articles4");
-//		testDocuments = new DocumentCorpus("src/test/resources/data/test2");
 		
 		benchMark("Load document");
 
@@ -162,7 +176,9 @@ public class TextCategorization {
 		for (int i = 0; i < testIdfMatrix.getColumnDimension(); i++) {
 			String actualCate = testDocuments.getDocCateMap().get(
 					testVG.getDocumentName(i));// test
+			
 			predictedCate = knn.classify(testIdfMatrix.getColumn(i));// train
+			
 			if (actualCate.equals(predictedCate))
 				correctCount++;
 			int row = testCategories.indexOf(actualCate);

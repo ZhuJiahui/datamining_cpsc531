@@ -15,8 +15,8 @@ import net.sf.jtmt.tokenizers.Token;
 import net.sf.jtmt.tokenizers.TokenType;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+//import org.apache.commons.logging.Log;
+//import org.apache.commons.logging.LogFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 /**
@@ -36,7 +36,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
  */
 public class AbbreviationRecognizer implements IRecognizer {
 
-  private final Log log = LogFactory.getLog(getClass());
+ // private final Log log = LogFactory.getLog(getClass());
   
   private JdbcTemplate jdbcTemplate;
   private Pattern abbrevEmbeddedInWordPattern;

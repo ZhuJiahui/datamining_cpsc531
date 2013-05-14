@@ -25,7 +25,6 @@ public class NaiveBayesClassifier extends TextClassifier {
 		init();
 	}
 	
-	@SuppressWarnings("deprecation")
 	private void init(){
 		Map<String, int[]> cateDocListMap = vsm.getCateDocListMap();
 		Set<Map.Entry<String, int[]>> cateDocListSet = cateDocListMap.entrySet();
@@ -83,14 +82,15 @@ public class NaiveBayesClassifier extends TextClassifier {
 		}
 		return bestCate;
 	}
-	/**计算某一个测试样本属于某个类别的概率
-	 * @param Map<String, Double> cateWordsProb 记录每个目录中出现的单词及次数 
-	 * @param File trainFile 该类别所有的训练样本所在目录
-	 * @param Vector<String> testFileWords 该测试样本中的所有词构成的容器
-	 * @param double totalWordsNum 记录所有训练样本的单词总数
-	 * @param Map<String, Double> cateWordsNum 记录每个类别的单词总数
+
+	/**
+	 * Compute the probability of assigning a test sample to a specific category
+	 * @param testVector The vector expression of a test sample, here use the TF of the test text
+	 * @param cateIndex	 The index of the category 
+	 * @return
+	 * @throws Exception
 	 */
-	private BigDecimal computeCategoryProb(double[] testVector, int cateIndex) throws Exception {//计算属于一个类别的概率
+	private BigDecimal computeCategoryProb(double[] testVector, int cateIndex) throws Exception {
 		BigDecimal probability = new BigDecimal(1);
 		double wordNumInCate = wordsTotalCountsInCate[cateIndex];//cateWordsNum.get(trainFile.getName());
 		BigDecimal wordNumInCateBD = new BigDecimal(wordNumInCate);

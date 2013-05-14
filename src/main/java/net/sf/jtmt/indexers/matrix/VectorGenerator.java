@@ -7,16 +7,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
-import java.util.TreeMap;
 import java.util.TreeSet;
 
-import javax.sql.DataSource;
-
-import net.sf.jtmt.recognizers.AbbreviationRecognizer;
 import net.sf.jtmt.recognizers.BoundaryRecognizer;
 import net.sf.jtmt.recognizers.ContentWordRecognizer;
 import net.sf.jtmt.recognizers.IRecognizer;
-import net.sf.jtmt.recognizers.PhraseRecognizer;
 import net.sf.jtmt.recognizers.RecognizerChain;
 import net.sf.jtmt.recognizers.StopwordRecognizer;
 import net.sf.jtmt.tokenizers.Token;
@@ -25,12 +20,10 @@ import net.sf.jtmt.tokenizers.WordTokenizer;
 
 import org.apache.commons.collections15.Bag;
 import org.apache.commons.collections15.bag.HashBag;
-import org.apache.commons.collections15.bag.TreeBag;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.math.linear.OpenMapRealMatrix;
 import org.apache.commons.math.linear.RealMatrix;
-import org.springframework.beans.factory.annotation.Required;
 
 import cpsc531.tc.stemmer.IStemmer;
 
@@ -42,26 +35,20 @@ import cpsc531.tc.stemmer.IStemmer;
  */
 public class VectorGenerator {
 
-	private DataSource dataSource;
+	//private DataSource dataSource;
 
 	//private Map<Integer, String> wordIdValueMap = new TreeMap<Integer, String>();
 	//private Map<Integer, String> documentIdNameMap = new TreeMap<Integer, String>();
-private ArrayList<String> wordList = new ArrayList<String>();
+	private ArrayList<String> wordList = new ArrayList<String>();
 	private ArrayList<String> documentNameList = new ArrayList<String>();
 	private RealMatrix matrix;
+	
 	private WordTokenizer wordTokenizer;
 	private IStemmer stemmer;
 	private RecognizerChain recognizerChain;
 
-	@Required
-	public void setDataSource(DataSource dataSource) {
-		this.dataSource = dataSource;
-	}
-
 	public void generateVector(Map<String, Reader> documents) throws Exception {
-		long startTime = System.nanoTime();
-		long estimatedTime;
-		
+
 		initRecognizers();
 		
 		Map<String, Bag<String>> documentWordFrequencyMap = new HashMap<String, Bag<String>>();
@@ -81,8 +68,7 @@ private ArrayList<String> wordList = new ArrayList<String>();
 			wordList.add(wordId, word);
 			wordId++;
 		}
-		// we need a documents.keySet().size() x wordSet.size() matrix to hold
-		// this info
+
 //		System.out.println("********generate fre********");
 //		estimatedTime = System.nanoTime() - startTime;
 //		startTime = System.nanoTime();
@@ -154,6 +140,14 @@ private ArrayList<String> wordList = new ArrayList<String>();
 			}
 		}
 		return words;
+	}
+	
+	public void addWord(String word){
+		wordList.add(word);
+	}
+	
+	public void addDocumentName(String docName){
+		documentNameList.add(docName);
 	}
 	
 	public void setStemmer(IStemmer _stemmer){

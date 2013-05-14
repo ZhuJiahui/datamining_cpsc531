@@ -1,5 +1,7 @@
 package net.sf.jtmt.indexers.matrix;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import org.apache.commons.collections15.Transformer;
@@ -61,6 +63,17 @@ public class IdfIndexer implements Transformer<RealMatrix, RealMatrix> {
 	public ArrayList<Double> getDFRawCounts() {
 		return dfRawCounts;
 	};
+	
+	public void outputRawDFCount(String docFreFile) throws IOException{
+		FileWriter docFreFileWriter = new FileWriter(docFreFile);
+		docFreFileWriter.flush();
+		for(int j = 0; j < dfRawCounts.size(); j++){//column loop(documents)
+			docFreFileWriter.append(Double.toString(dfRawCounts.get(j)) +"\n");
+		}
+		docFreFileWriter.flush();
+		docFreFileWriter.close();
+	
+	}
 
 	private double sum(RealMatrix colMatrix) {
 		double sum = 0.0D;

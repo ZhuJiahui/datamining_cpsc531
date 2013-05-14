@@ -34,8 +34,6 @@ package cpsc531.tc.stemmer;
 
  */
 
-import java.io.*;
-
 
 /**
  * Stemmer, implementing the Porter Stemming Algorithm

@@ -19,9 +19,10 @@ public class ParagraphTokenizer {
   private String text;
   private int index = 0;
   private RuleBasedBreakIterator breakIterator;
+ // private String rulePath = 
   
   public ParagraphTokenizer() throws Exception {
-    this("src/main/resources/paragraph_break_rules.txt");
+    this(ParagraphTokenizer.class.getResource("rules/paragraph_break_rules.txt").toString());
   }
 
   public ParagraphTokenizer(String rulesfile) throws Exception {

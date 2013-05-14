@@ -11,7 +11,6 @@ import org.apache.commons.math.linear.OpenMapRealMatrix;
 import org.apache.commons.math.linear.OpenMapRealVector;
 
 import cpsc531.tc.features.VectorSpaceModel;
-import cpsc531.tc.utils.SparseVector;
 
 /**
  * KNN Classifier
@@ -42,7 +41,6 @@ public class KNNClassifier extends TextClassifier{
 					sumAbs[i] += (temp*temp);
 				
 			}
-			//System.out.printf("Dominator_init:%d:%f%n",i, sumAbs[i]);
 			sumAbs[i] = Math.sqrt(sumAbs[i]);
 		}
 	}

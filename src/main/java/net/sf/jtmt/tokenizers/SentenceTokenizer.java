@@ -20,7 +20,7 @@ public class SentenceTokenizer {
   private RuleBasedBreakIterator breakIterator;
   
   public SentenceTokenizer() throws Exception {
-    this("src/main/resources/sentence_break_rules.txt");
+    this(SentenceTokenizer.class.getResource("rules/sentence_break_rules.txt").toString());
   }
 
   public SentenceTokenizer(String rulesfile) throws Exception {

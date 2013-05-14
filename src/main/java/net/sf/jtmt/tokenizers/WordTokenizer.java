@@ -1,15 +1,17 @@
 package net.sf.jtmt.tokenizers;
 
-import java.io.File;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Map;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.ArrayUtils;
-//import org.apache.commons.logging.Log;
-//import org.apache.commons.logging.LogFactory;
 
 import com.ibm.icu.text.BreakIterator;
 import com.ibm.icu.text.RuleBasedBreakIterator;
+//import org.apache.commons.logging.Log;
+//import org.apache.commons.logging.LogFactory;
 
 /**
  * Tokenize a block of text into its component words. This is a simple wrapper
@@ -42,13 +44,14 @@ public class WordTokenizer {
   private RuleBasedBreakIterator breakIterator;
   
   public WordTokenizer() throws Exception {
-    this("src/main/resources/word_break_rules.txt");
+    this("rules/word_break_rules.txt");
   }
 
   public WordTokenizer(String rulesfile) throws Exception {
     super();
-    this.breakIterator = new RuleBasedBreakIterator(
-      FileUtils.readFileToString(new File(rulesfile), "UTF-8"));
+    String rules = getTextFile(rulesfile);
+    //this.breakIterator = new RuleBasedBreakIterator(FileUtils.readFileToString(new File(rulesfile), "UTF-8"));
+    this.breakIterator = new RuleBasedBreakIterator(rules);
   }
   
   public void setText(String text) {
@@ -68,5 +71,26 @@ public class WordTokenizer {
       index = end;
       return new Token(nextWord, RULE_ENTITY_MAP.get(breakIterator.getRuleStatus()));
     }
+  }
+  
+  private static String getTextFile(String path) {
+  	InputStream inStream= WordTokenizer.class.getResourceAsStream(path);
+  	String inList = "";
+  	if (inStream != null) {
+  		BufferedReader in= new BufferedReader(new InputStreamReader(inStream));
+  		String nextLine;
+  		try {   // Whole try-catch is a bit of a waste, but needed to satisfy readLine 
+  			while( (nextLine= in.readLine()) != null) {
+  				inList = inList + "\n" + nextLine;
+  			}
+  		} catch (IOException ex) {
+  			System.out.println("something bad happened!");
+  			System.exit(0);
+  		}
+  		return inList;
+  	} else {
+  		System.err.println("Couldn't find file: " + path);
+  		return null;
+  	}
   }
 }

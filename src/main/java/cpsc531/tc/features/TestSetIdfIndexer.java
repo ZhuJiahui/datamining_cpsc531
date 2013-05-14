@@ -1,12 +1,12 @@
 package cpsc531.tc.features;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.util.ArrayList;
 
 import net.sf.jtmt.indexers.matrix.IdfIndexer;
-import net.sf.jtmt.indexers.matrix.VectorGenerator;
 
-import org.apache.commons.collections15.Bag;
-import org.apache.commons.collections15.Transformer;
 import org.apache.commons.math.linear.OpenMapRealMatrix;
 import org.apache.commons.math.linear.RealMatrix;
 
@@ -27,6 +27,36 @@ public class TestSetIdfIndexer extends IdfIndexer {
 			ArrayList<String> _trainWordList, ArrayList<Double> docFreq,
 			int docNum) {
 		trainDocFreq = docFreq;
+		trainDocNum = docNum;
+		trainWordsetSize = _trainWordList.size();
+		testTrainWordMap = new ArrayList<Integer>(_testWordList.size());
+		
+		System.out.println("......_trainWordList........%n");
+		System.out.printf("size:%d,",_trainWordList.size());
+		
+		for (int i = 0; i < _testWordList.size(); i++) {
+			testTrainWordMap.add(i,
+					_trainWordList.indexOf(_testWordList.get(i)));
+		}
+	}
+	public TestSetIdfIndexer(ArrayList<String> _testWordList,
+			ArrayList<String> _trainWordList, String dfFileStr,
+			int docNum) throws Exception {
+		
+		File dfFile = new File(dfFileStr);
+		BufferedReader dfFileBR = new BufferedReader(new FileReader(dfFile));
+		String line;
+		ArrayList<Double> df = new ArrayList<Double>();
+		while((line = dfFileBR.readLine()) != null){
+			
+			line = line.trim();
+			df.add(Double.valueOf(line));
+		}
+		dfFileBR.close();
+		
+		//this(_testWordList, _trainWordList, df, docNum);
+		
+		trainDocFreq = df;
 		trainDocNum = docNum;
 		trainWordsetSize = _trainWordList.size();
 		testTrainWordMap = new ArrayList<Integer>(_testWordList.size());
@@ -74,8 +104,7 @@ public class TestSetIdfIndexer extends IdfIndexer {
 						dm = trainDocFreq.get(k) + dfRawCounts.get(i);
 					} else
 						dm = dfRawCounts.get(i);
-					matrix.setEntry(i, j,
-							matrix.getEntry(i, j) * (Math.log(n / (dm + 1))));
+					matrix.setEntry(i, j, matrix.getEntry(i, j) * (Math.log(n / (dm + 1))));
 				}
 			}
 		}

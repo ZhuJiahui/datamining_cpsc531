@@ -1,25 +1,19 @@
 package cpsc531.tc.utils;
 
+import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
-import java.io.File;
-import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.SortedMap;
-import java.util.SortedSet;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 import org.apache.commons.collections15.map.HashedMap;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.DirectoryWalker;
-import org.apache.commons.lang.StringUtils;
 
 /**
  * A simple in-memory document corpus, load all the documents as string into 
@@ -30,7 +24,7 @@ import org.apache.commons.lang.StringUtils;
 
 public class DocumentCorpus {
 	
-	private Map<String, Reader> documents;//
+	private Map<String, Reader> documents;//<documentName, documentContent>
 	private Map<String, String> docCategoryMap; //<document, category>
 	private SortedMap<String, int[]> cateDocListMap; //<category, document index list>
 
@@ -40,6 +34,12 @@ public class DocumentCorpus {
 	 * treated as categories with the folder name as the category names. 
 	 * @throws IOException
 	 */
+	
+	public DocumentCorpus(){
+		documents = new LinkedHashMap<String,Reader>();
+		docCategoryMap = new HashedMap<String, String>();
+		cateDocListMap = new TreeMap<String, int[]>();
+	}
 	public DocumentCorpus(String rootDir) throws IOException{
 	    File dir_articles = new File(rootDir);
 	    String entries[] = dir_articles.list();
@@ -59,11 +59,53 @@ public class DocumentCorpus {
 	    		}
 	    	}
 	    	if(article.isFile()){
+	    		//do nothing here
 	    		//documents.put(entry, new StringReader(FileUtils.readFileToString(article)));
 	    	}
 	    }
 	}
 	
+
+	public DocumentCorpus(String rootDir, int dummy) throws IOException{
+	    File dir_articles = new File(rootDir);
+	    String entries[] = dir_articles.list();
+		documents = new LinkedHashMap<String,Reader>();
+		docCategoryMap = new HashedMap<String, String>();
+		cateDocListMap = new TreeMap<String, int[]>();
+	    for(String entry : entries){
+	    	File article = new File(dir_articles,entry);
+	    	if(article.isDirectory()){
+	    		recursiveLoadDummy(article, article.getName() );
+	    	}
+	    }
+	}
+	
+	private int recursiveLoadDummy(File dir, String category) throws IOException{
+	    String entries[] = dir.list();
+	    int fileCount = 0;
+	    for(String entry : entries){
+	    	File article = new File(dir,entry);
+	    	if(article.isDirectory()){
+	    		fileCount += recursiveLoadDummy(article, category);
+	    	}
+	    	if(article.isFile()){
+	    		fileCount ++;
+	    		String docName = entry +"_" + category;
+	    		//docCategoryMap.put(docName, category);
+	    		addDocument(docName, FileUtils.readFileToString(article),category);
+	    	}
+	    }
+	    return fileCount;
+	}
+	
+	/**
+	 * Load selected documents under specified root directory, only load the documents who's position 
+	 * in the folder are between the start percentage and end percentage.
+	 * @param rootDir The folder 
+	 * @param startPer
+	 * @param endPer
+	 * @throws IOException
+	 */
 	public DocumentCorpus(String rootDir, double startPer, double endPer) throws IOException{
 	    File dir_articles = new File(rootDir);
 	    String entries[] = dir_articles.list();
@@ -83,6 +125,26 @@ public class DocumentCorpus {
 	    		}
 	    	}
 	    }
+	}
+	
+	public void addDocument(String title, String content, String category){
+		documents.put(title, new StringReader(content));
+		docCategoryMap.put(title, category);
+		if(cateDocListMap.containsKey(category)){
+			int[] originDocList = cateDocListMap.get(category);
+			int[] newDocList = Arrays.copyOf(originDocList, originDocList.length + 1);
+			newDocList[originDocList.length] = documents.size() - 1;
+			cateDocListMap.put(category, newDocList);
+		}
+		else{
+			int[] arr = {documents.size()-1};
+			cateDocListMap.put(category, arr);
+		}
+	}
+	
+	public void addDocument(String title, String content){
+		addDocument(title, content, "default");
+		
 	}
 	
 	public Map<String, Reader> getDocuments(){
@@ -106,7 +168,6 @@ public class DocumentCorpus {
 	}
 
 	private int loadFiles(File dir, String category, double startPer, double endPer) throws IOException{
-	    //String entries[] = dir.list();
 		FileFilter directoryFilter = new FileFilter() {
 			public boolean accept(File file) {
 				return file.isFile();
@@ -121,7 +182,6 @@ public class DocumentCorpus {
 	    //System.out.printf("length:%d", entries.length);
 	    //System.out.printf("start:%d, end:%d%n", startIndex, endIndex);
 	    for(int i = startIndex; i < endIndex; i++){
-	    	//File article = new File(dir,entry);
     		fileCount ++;
     		String docName = entries[i].getName() +"_" + category;
     		docCategoryMap.put(docName, category);

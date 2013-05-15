@@ -104,7 +104,7 @@ public class TestSetIdfIndexer extends IdfIndexer {
 						dm = trainDocFreq.get(k) + dfRawCounts.get(i);
 					} else
 						dm = dfRawCounts.get(i);
-					matrix.setEntry(i, j, matrix.getEntry(i, j) * (Math.log(n / (dm + 1))));
+					matrix.setEntry(i, j, matrix.getEntry(i, j) * ( 1 + Math.log(n / dm)));
 				}
 			}
 		}

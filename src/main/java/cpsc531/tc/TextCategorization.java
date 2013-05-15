@@ -40,6 +40,7 @@ public class TextCategorization {
 	static IStemmer stemmer;
 	static TextClassifier classifier;
 	static ArrayList<Double> dfList;
+	static PrintWriter mypw;
 	
 	public static void init(String wordnetDictPath, String matrixFilePath, String wordListFilePath, String dfFilePath) throws Exception{
 		stemmer = new WordnetDictStemmer(wordnetDictPath);
@@ -60,7 +61,7 @@ public class TextCategorization {
 		RealMatrix testIdfMatrix= testIndexer.transform(testVG.getMatrix());
 		
 		String cate =  classifier.classify(testIdfMatrix.getColumn(0));
-		System.out.println(cate);
+		mypw.println(cate);
 		return cate;
 		
 	}
@@ -83,9 +84,9 @@ public class TextCategorization {
 	
 	private static void generateModelFiles(String trainFilesRootDir) throws Exception{
 		start();
-		String matrixFile = "C:/Users/shaofenchen/workspace2/data/matrix.txt"; 
-		String wordListFile = "C:/Users/shaofenchen/workspace2/data/wordList.txt";
-		String docFreFile = "C:/Users/shaofenchen/workspace2/data/df.txt";
+		String matrixFile = "./matrix.txt"; 
+		String wordListFile = "./wordList.txt";
+		String docFreFile = "./df.txt";
 		trainDocuments = new DocumentCorpus(trainFilesRootDir);
 		VectorGenerator trainVG = new VectorGenerator();
 
@@ -102,13 +103,15 @@ public class TextCategorization {
 		
 		indexer.outputRawDFCount(docFreFile);
 		vsm.outputModel(matrixFile, wordListFile);
+		mypw.println("\nmatrix.txt,wordList.txt and df.txt generated secussfully, please check the same folder as this jar file");
 	}
 	
-	private static void testModelFiles()throws Exception, IOException {
-		String matrixFile = "C:/Users/shaofenchen/workspace2/data/matrix.txt"; 
-		String wordListFile = "C:/Users/shaofenchen/workspace2/data/wordList.txt";
-		String dfFileStr = "C:/Users/shaofenchen/workspace2/data/df.txt";
+	private static void testModelFiles(String testFilesRootDir)throws Exception, IOException {
+		String matrixFile = "./matrix.txt"; 
+		String wordListFile = "./wordList.txt";
+		String dfFileStr = "./df.txt";
 		
+		testDocuments = new DocumentCorpus(testFilesRootDir);
 		VectorGenerator testVG = new VectorGenerator();
 		testVG.setStemmer(stemmer);
 		testVG.generateVector(testDocuments.getDocuments());
@@ -142,7 +145,19 @@ public class TextCategorization {
 		trainTestFilesRootDir = "C:/Users/shaofenchen/workspace2/data/articles2";
 		trainFilesRootDir = "C:/Users/shaofenchen/workspace2/data/articles4";
 		testFilesRootDir = "C:/Users/shaofenchen/workspace2/data/test2";
+		mypw = new PrintWriter("./log.txt");
 		
+		if(args.length!=4){
+			System.err.println("4 parameters required: Wordnet /dict folder path, Training sample folder path, Testing sample folder, run option.\n" +
+					"Run Option:\n " +
+					"0.Run one round testing\n" +
+					"1.Run 10 round testings, with increasing trainning sample each time\n" +
+					"2.Only ouput the trained model(save at the same folder as this jar file.)\n" +
+					"3.Classify the document in test sample folder using the generated model files\n" +
+					"Others: Exit program\n" +
+					"For more detail, please see readme.md");
+			System.exit(0);
+		}
 		
 		if(args.length > 0){
 			stemmer = new WordnetDictStemmer(args[0]);
@@ -150,17 +165,31 @@ public class TextCategorization {
 			stemmer = new WordnetDictStemmer("C:\\Program Files (x86)\\WordNet\\2.1\\dict");
 		if(args.length == 2){
 			trainTestFilesRootDir = args[1];
-			runBatchTest(trainTestFilesRootDir);
+			//runBatchTest(trainTestFilesRootDir);
 		}
-		else if(args.length == 3){
+		else if(args.length > 3){
 			trainFilesRootDir = args[1];
+			trainTestFilesRootDir = args[1];
 			testFilesRootDir = args[2];
-			runOnce(trainFilesRootDir,testFilesRootDir);
-		}else{
+			switch (Integer.valueOf(args[3])) {
+	            case 0:  runOnce(trainFilesRootDir,testFilesRootDir);
+	                     break;
+	            case 1:  runBatchTest(trainFilesRootDir);
+	                     break;
+	            case 2:  generateModelFiles(trainFilesRootDir);
+	                     break;
+	            case 3:  testModelFiles(testFilesRootDir);
+                		 break;
+	            default: return;
+			}
+			
+			//runOnce(trainFilesRootDir,testFilesRootDir);
 			//runBatchTest(trainTestFilesRootDir);
 			//runOnce(trainFilesRootDir, testFilesRootDir);
-			generateModelFiles(trainFilesRootDir);
+			//generateModelFiles(trainFilesRootDir);
 		}
+		
+		
 		
 	}
 	
@@ -178,9 +207,9 @@ public class TextCategorization {
 	
 	private static void runOnce(String trainFilesRootDir, String testFilesRootDir) throws Exception{
 		start();
-		trainDocuments = new DocumentCorpus(trainFilesRootDir, 1);
-		testDocuments = new DocumentCorpus(testFilesRootDir, 1);
-		testModelFiles();
+		trainDocuments = new DocumentCorpus(trainFilesRootDir);
+		testDocuments = new DocumentCorpus(testFilesRootDir);
+		runTest();
 	}
 	
 
@@ -206,14 +235,14 @@ public class TextCategorization {
 
 //		PrettyPrinter.prettyPrintPartsOfMatrix("Occurences", idfMatrix,
 //				trainVG.getDocumentNames(), trainVG.getWords(),
-//				new PrintWriter(System.out, true), 3000, 3200, 0, 20);
-		// prettyPrintMap("Category map",documents.getCategoryMap(),new PrintWriter(System.out, true));
-		System.out.println("======Total documents======");
-		System.out.println(trainVG.getWords().length);
-		System.out.println(trainDocuments.getCorpusSize());
+//				new PrintWriter(mypw, true), 3000, 3200, 0, 20);
+		// prettyPrintMap("Category map",documents.getCategoryMap(),new PrintWriter(mypw, true));
+		mypw.println("======Total documents======");
+		mypw.println(trainVG.getWords().length);
+		mypw.println(trainDocuments.getCorpusSize());
 
 		
-		System.out.println("======KNN Classifier======");		
+		mypw.println("======KNN Classifier======");		
 		// documents = null;
 		TestSetIdfIndexer testIndexer = new TestSetIdfIndexer(
 				testVG.getWordList(), trainVG.getWordList(),
@@ -222,7 +251,7 @@ public class TextCategorization {
 		
 //		PrettyPrinter.prettyPrintPartsOfMatrix("test doc idf", testIdfMatrix,
 //				testVG.getDocumentNames(), trainVG.getWords(), new PrintWriter(
-//						System.out, true), 1000, 1200, 0, 20);
+//						mypw, true), 1000, 1200, 0, 20);
 
 		
 		VectorSpaceModel vsm = new VectorSpaceModel(trainVG,
@@ -233,12 +262,12 @@ public class TextCategorization {
 		benchMark("KNN Classifier");
 		
 		
-		System.out.println("======Native Bayes Classifier======");
+		mypw.println("======Native Bayes Classifier======");
 		TestSetBayesIndexer testBayesIndexer = new TestSetBayesIndexer(testVG.getWordList(), trainVG.getWordList());
 		RealMatrix testBayesMatrix= testBayesIndexer.transform(testVG.getMatrix());
 //		PrettyPrinter.prettyPrintPartsOfMatrix("test doc bayes", testBayesMatrix,
 //				testVG.getDocumentNames(), trainVG.getWords(), new PrintWriter(
-//						System.out, true), 1000, 1200, 0, 20);
+//						mypw, true), 1000, 1200, 0, 20);
 		
 		VectorSpaceModel vsmb = new VectorSpaceModel(trainVG,
 				trainDocuments.getDocCateMap(), trainDocuments.getCateDocListMap(), trainVG.getMatrix());
@@ -253,15 +282,15 @@ public class TextCategorization {
 	}
 
 	private static void benchMark(String legend) {
-		System.out.printf("======%s======%n", legend);
-		System.out.println("******Elasped time******");
+		mypw.printf("======%s======%n", legend);
+		mypw.println("******Elasped time******");
 		estimatedTime = System.nanoTime() - stopTime;
 		stopTime = System.nanoTime();
-		System.out.printf("%8.4fs%n",(double)estimatedTime/1000000000D);
+		mypw.printf("%8.4fs%n",(double)estimatedTime/1000000000D);
 		
-		System.out.println("======Total Elasped time======");
+		mypw.println("======Total Elasped time======");
 		estimatedTime = System.nanoTime() - startTime;
-		System.out.printf("%8.4fs%n",(double)estimatedTime/1000000000D);
+		mypw.printf("%8.4fs%n",(double)estimatedTime/1000000000D);
 	}
 
 	private static void runAndPrintConfusionMatrix(VectorGenerator testVG,
@@ -289,14 +318,14 @@ public class TextCategorization {
 			int col = trainCategories.indexOf(predictedCate);
 			double temp = confuseMatrix.getEntry(row, col);
 			confuseMatrix.setEntry(row, col, temp + 1);
-			//System.out.printf("doc:%s, category:%s%n", testVG.getDocumentName(i), predictedCate);
+			//mypw.printf("doc:%s, category:%s%n", testVG.getDocumentName(i), predictedCate);
 		}
 
 		PrettyPrinter.prettyPrintMatrix("ConfusionMatrix", confuseMatrix,
 				trainCategories.toArray(new String[trainCategories.size()]),
 				testCategories.toArray(new String[testCategories.size()]),
-				new PrintWriter(System.out, true));
-		System.out.printf("Accuracy rate:%8.4f%n", correctCount / testIdfMatrix.getColumnDimension());
+				new PrintWriter(mypw, true));
+		mypw.printf("Accuracy rate:%8.4f%n", correctCount / testIdfMatrix.getColumnDimension());
 	}
 
 }
